@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:school_management/screens/auth/signin.dart';
+import 'package:school_management/screens/auth/checklogin.dart';
+// import 'package:school_management/screens/auth/signin.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+// import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 // import 'constants/platform.dart';
 
@@ -21,6 +23,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    Supabase.instance.client.auth.signOut();
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
@@ -28,7 +31,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: const SignIn(),
+      home: const CheckLogin(),
+      // builder: EasyLoading.init(),
     );
   }
 }

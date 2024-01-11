@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:gap/gap.dart';
+import 'package:school_management/screens/auth/authService.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../constants/field.dart';
+import '../../models/adduserModel.dart';
+import 'checklogin.dart';
 import 'databaseService.dart';
 
 class SignUp extends StatefulWidget {
@@ -16,34 +21,63 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   static List<String> schools = <String>[' '];
   String dropdownValue = schools.first;
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
+  final _formKeyHead = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
   final TextEditingController emisCodeController = TextEditingController();
   final TextEditingController staffIDController = TextEditingController();
-
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController admissionNumberController = TextEditingController();
+  AddUserData data = AddUserData();
+  bool loading = false;
   supaDatabaseService databaseService = supaDatabaseService();
   bool enabled = false;
   int i = 0;
+
+  void submitData() {
+    setState(() {
+      loading = true;
+    });
+    if (passwordController.text == confirmPasswordController.text) {
+      data.email = emailController.text;
+      data.emisCode = emisCodeController.text;
+      data.name = nameController.text;
+      data.password = passwordController.text;
+      data.school = dropdownValue;
+      data.staffID = staffIDController.text;
+      data.admissionNumber = admissionNumberController.text;
+
+      var res = AuthService().signupUser(widget.roll, data);
+      res.then((e) {
+        setState(() {
+          loading = false;
+        });
+        if (e.toString() == '') {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const CheckLogin()),
+          );
+          toast(msg: 'Successful!', context: context);
+        } else {
+          toast(msg: e.toString(), context: context);
+        }
+      });
+      // toast(context: context, msg: res.);
+    } else {
+      toast(msg: 'Passwords do not match!', context: context);
+    }
+  }
 
   @override
   void initState() {
     databaseService.schools.forEach((e) {
       i = e.length;
       for (int k = 0; k <= i - 1; k++) {
-        // print('$k. ' + e[k]['institution']);
         schools.add(e[k]['institution']);
       }
     });
 
-    // databaseService.schools.forEach((e) {
-    //   print(e[1]['institution']);
-    // });
-
-    // for (int i = 0; i <= databaseService.schools.length - 1; i++){
-
-    // }
     // TODO: implement initState
     super.initState();
   }
@@ -66,263 +100,124 @@ class _SignUpState extends State<SignUp> {
           ),
         ),
       ),
-      body: Center(
-        child: Form(
-            key: formKey,
-            // headteacher*********************************************//
-            child: widget.roll == 'Headteacher'
-                ? Column(
-                    children: [
-                      const Gap(30),
-                      DropdownMenu(
-                        menuStyle: MenuStyle(
-                          elevation: MaterialStateProperty.all(10),
+      body: loading == false
+          ? Center(
+              child: widget.roll == 'headteacher'
+                  ? Form(
+                      key: _formKeyHead,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            const Gap(30),
+                            DropdownMenu(
+                              menuStyle: MenuStyle(
+                                elevation: MaterialStateProperty.all(10),
+                              ),
+                              width: 250,
+                              trailingIcon: const Icon(
+                                Icons.arrow_drop_down,
+                                color: Colors.black,
+                              ),
+                              initialSelection: schools.first,
+                              label: const Text(
+                                'Select Your School',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              enableSearch: true,
+                              enableFilter: true,
+                              menuHeight: 250,
+                              onSelected: (String? value) {
+                                // This is called when the user selects an item.
+                                setState(() {
+                                  dropdownValue = value!;
+                                  if (value != ' ') {
+                                    enabled = true;
+                                  } else {
+                                    enabled = false;
+                                  }
+                                  passwordController.text = '';
+                                  emailController.text = '';
+                                  nameController.text = '';
+                                  confirmPasswordController.text = '';
+                                  staffIDController.text = '';
+                                  emisCodeController.text = '';
+                                  admissionNumberController.text = '';
+                                });
+                              },
+                              dropdownMenuEntries: schools.map<DropdownMenuEntry<String>>((String value) {
+                                return DropdownMenuEntry<String>(value: value, label: value);
+                              }).toList(),
+                            ),
+                            const Gap(20),
+                            myTextField(
+                              context: context,
+                              enabled: enabled,
+                              errorKey: 'emis_code',
+                              hintText: 'Emis Code',
+                              keyboardType: TextInputType.number,
+                              obscure: false,
+                              preFixIcon: const Icon(Icons.code),
+                              textController: emisCodeController,
+                            ),
+                            const Gap(2),
+                            myTextField(
+                              context: context,
+                              enabled: enabled,
+                              errorKey: 'email',
+                              hintText: 'Email',
+                              keyboardType: TextInputType.emailAddress,
+                              obscure: false,
+                              preFixIcon: const Icon(Icons.email),
+                              textController: emailController,
+                            ),
+                            const Gap(2),
+                            myTextField(
+                              context: context,
+                              enabled: enabled,
+                              errorKey: 'Password',
+                              hintText: 'Password',
+                              keyboardType: TextInputType.text,
+                              obscure: true,
+                              preFixIcon: const Icon(Icons.lock),
+                              textController: passwordController,
+                            ),
+                            const Gap(2),
+                            myTextField(
+                              context: context,
+                              enabled: enabled,
+                              errorKey: 'Passworda',
+                              hintText: 'Confirm Password',
+                              keyboardType: TextInputType.text,
+                              obscure: true,
+                              preFixIcon: const Icon(Icons.lock),
+                              textController: confirmPasswordController,
+                            ),
+                            const Gap(15),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: myButton(
+                                formKey: _formKeyHead,
+                                label: 'SIGN UP',
+                                icon: const Icon(Icons.join_full),
+                                function: () {
+                                  if (dropdownValue.isNotEmpty || dropdownValue != ' ') {
+                                    submitData();
+                                  } else {
+                                    toast(context: context, msg: 'Please Select Your School');
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                        width: 250,
-                        trailingIcon: const Icon(
-                          Icons.arrow_drop_down,
-                          color: Colors.black,
-                        ),
-                        initialSelection: schools.first,
-                        label: const Text(
-                          'Select Your School',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        enableSearch: true,
-                        enableFilter: true,
-                        menuHeight: 250,
-                        onSelected: (String? value) {
-                          // This is called when the user selects an item.
-                          setState(() {
-                            dropdownValue = value!;
-                            if (value != ' ') {
-                              enabled = true;
-                            } else {
-                              enabled = false;
-                            }
-                            passwordController.text = '';
-                            emailController.text = '';
-                          });
-                        },
-                        dropdownMenuEntries: schools.map<DropdownMenuEntry<String>>((String value) {
-                          return DropdownMenuEntry<String>(value: value, label: value);
-                        }).toList(),
                       ),
-                      const Gap(20),
-                      myTextField(
-                        context: context,
-                        enabled: enabled,
-                        errorKey: 'emis_code',
-                        hintText: 'Emis Code',
-                        keyboardType: TextInputType.number,
-                        obscure: false,
-                        preFixIcon: const Icon(Icons.code),
-                        textController: emisCodeController,
-                      ),
-                      const Gap(2),
-                      myTextField(
-                        context: context,
-                        enabled: enabled,
-                        errorKey: 'Password',
-                        hintText: 'Password',
-                        keyboardType: TextInputType.text,
-                        obscure: true,
-                        preFixIcon: const Icon(Icons.lock),
-                        textController: passwordController,
-                      ),
-                      const Gap(2),
-                      myTextField(
-                        context: context,
-                        enabled: enabled,
-                        errorKey: 'Password',
-                        hintText: 'Confirm Password',
-                        keyboardType: TextInputType.text,
-                        obscure: true,
-                        preFixIcon: const Icon(Icons.lock),
-                        textController: confirmPasswordController,
-                      ),
-                      const Gap(2),
-                      myTextField(
-                        context: context,
-                        enabled: enabled,
-                        errorKey: 'email',
-                        hintText: 'Email',
-                        keyboardType: TextInputType.emailAddress,
-                        obscure: false,
-                        preFixIcon: const Icon(Icons.email),
-                        textController: emailController,
-                      ),
-                      const Gap(15),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: myButton(
-                          formKey: formKey,
-                          label: 'SIGN UP',
-                          icon: const Icon(Icons.join_full),
-                          function: () {},
-                        ),
-                      ),
-                    ],
-                  )
+                    )
 
-                // Teacher **********************************************//
-                : widget.roll == 'Teacher'
-                    ? Column(
-                        children: [
-                          const Gap(30),
-                          DropdownMenu(
-                            menuStyle: MenuStyle(
-                              elevation: MaterialStateProperty.all(10),
-                            ),
-                            width: 250,
-                            trailingIcon: const Icon(
-                              Icons.arrow_drop_down,
-                              color: Colors.black,
-                            ),
-                            initialSelection: schools.first,
-                            label: const Text(
-                              'Select Your School',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                            enableSearch: true,
-                            enableFilter: true,
-                            menuHeight: 250,
-                            onSelected: (String? value) {
-                              // This is called when the user selects an item.
-                              setState(() {
-                                dropdownValue = value!;
-                                if (value != ' ') {
-                                  enabled = true;
-                                } else {
-                                  enabled = false;
-                                }
-                                passwordController.text = '';
-                                emailController.text = '';
-                              });
-                            },
-                            dropdownMenuEntries: schools.map<DropdownMenuEntry<String>>((String value) {
-                              return DropdownMenuEntry<String>(value: value, label: value);
-                            }).toList(),
-                          ),
-                          const Gap(20),
-                          myTextField(
-                            context: context,
-                            enabled: enabled,
-                            errorKey: 'staffid',
-                            hintText: 'Staff ID',
-                            keyboardType: TextInputType.number,
-                            obscure: false,
-                            preFixIcon: const Icon(Icons.code),
-                            // textController: emailController,
-                          ),
-                          const Gap(2),
-                          myTextField(
-                            context: context,
-                            enabled: enabled,
-                            errorKey: 'email',
-                            hintText: 'Email',
-                            keyboardType: TextInputType.emailAddress,
-                            obscure: false,
-                            preFixIcon: const Icon(Icons.email),
-                            textController: emailController,
-                          ),
-                          const Gap(2),
-                          myTextField(
-                            context: context,
-                            enabled: enabled,
-                            errorKey: 'Password',
-                            hintText: 'Password',
-                            keyboardType: TextInputType.text,
-                            obscure: true,
-                            preFixIcon: const Icon(Icons.lock),
-                            // textController: emailController,
-                          ),
-                          const Gap(2),
-                          myTextField(
-                            context: context,
-                            enabled: enabled,
-                            errorKey: 'Password',
-                            hintText: 'Password',
-                            keyboardType: TextInputType.text,
-                            obscure: true,
-                            preFixIcon: const Icon(Icons.lock),
-                            // textController: emailController,
-                          ),
-                          const Gap(15),
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: myButton(
-                              formKey: formKey,
-                              label: 'SIGN UP',
-                              icon: const Icon(Icons.join_full),
-                              function: () {},
-                            ),
-                          ),
-                        ],
-                      )
-                    // Admin*****************************
-                    : widget.roll == 'Admin'
-                        ? Column(
-                            children: [
-                              const Gap(20),
-                              myTextField(
-                                context: context,
-                                enabled: enabled,
-                                errorKey: 'staffid',
-                                hintText: 'Staff ID',
-                                keyboardType: TextInputType.number,
-                                obscure: false,
-                                preFixIcon: const Icon(Icons.code),
-                                // textController: emailController,
-                              ),
-                              const Gap(2),
-                              myTextField(
-                                context: context,
-                                enabled: enabled,
-                                errorKey: 'email',
-                                hintText: 'Email',
-                                keyboardType: TextInputType.emailAddress,
-                                obscure: false,
-                                preFixIcon: const Icon(Icons.email),
-                                textController: emailController,
-                              ),
-                              const Gap(2),
-                              myTextField(
-                                context: context,
-                                enabled: enabled,
-                                errorKey: 'Password',
-                                hintText: 'Password',
-                                keyboardType: TextInputType.text,
-                                obscure: true,
-                                preFixIcon: const Icon(Icons.lock),
-                                // textController: emailController,
-                              ),
-                              const Gap(2),
-                              myTextField(
-                                context: context,
-                                enabled: enabled,
-                                errorKey: 'Password',
-                                hintText: 'Password',
-                                keyboardType: TextInputType.text,
-                                obscure: true,
-                                preFixIcon: const Icon(Icons.lock),
-                                // textController: emailController,
-                              ),
-                              const Gap(15),
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: myButton(
-                                  formKey: formKey,
-                                  label: 'SIGN UP',
-                                  icon: const Icon(Icons.join_full),
-                                  function: () {},
-                                ),
-                              ),
-                            ],
-                          )
-
-                        // Pupils*****************************************
-                        : Column(
+                  // Teacher **********************************************//
+                  : widget.roll == 'teacher'
+                      ? Form(
+                          key: formKey,
+                          child: Column(
                             children: [
                               const Gap(30),
                               DropdownMenu(
@@ -353,6 +248,11 @@ class _SignUpState extends State<SignUp> {
                                     }
                                     passwordController.text = '';
                                     emailController.text = '';
+                                    nameController.text = '';
+                                    confirmPasswordController.text = '';
+                                    staffIDController.text = '';
+                                    emisCodeController.text = '';
+                                    admissionNumberController.text = '';
                                   });
                                 },
                                 dropdownMenuEntries: schools.map<DropdownMenuEntry<String>>((String value) {
@@ -363,12 +263,23 @@ class _SignUpState extends State<SignUp> {
                               myTextField(
                                 context: context,
                                 enabled: enabled,
-                                errorKey: 'admissionNumber',
-                                hintText: 'Admission Number',
+                                errorKey: 'staffid',
+                                hintText: 'Staff ID',
                                 keyboardType: TextInputType.number,
                                 obscure: false,
                                 preFixIcon: const Icon(Icons.code),
-                                // textController: emailController,
+                                textController: staffIDController,
+                              ),
+                              const Gap(2),
+                              myTextField(
+                                context: context,
+                                enabled: enabled,
+                                errorKey: 'name',
+                                hintText: 'Name',
+                                keyboardType: TextInputType.emailAddress,
+                                obscure: false,
+                                preFixIcon: const Icon(Icons.person),
+                                textController: nameController,
                               ),
                               const Gap(2),
                               myTextField(
@@ -390,18 +301,18 @@ class _SignUpState extends State<SignUp> {
                                 keyboardType: TextInputType.text,
                                 obscure: true,
                                 preFixIcon: const Icon(Icons.lock),
-                                // textController: emailController,
+                                textController: passwordController,
                               ),
                               const Gap(2),
                               myTextField(
                                 context: context,
                                 enabled: enabled,
                                 errorKey: 'Password',
-                                hintText: 'Password',
+                                hintText: 'Confirm Password',
                                 keyboardType: TextInputType.text,
                                 obscure: true,
                                 preFixIcon: const Icon(Icons.lock),
-                                // textController: emailController,
+                                textController: confirmPasswordController,
                               ),
                               const Gap(15),
                               Padding(
@@ -410,12 +321,221 @@ class _SignUpState extends State<SignUp> {
                                   formKey: formKey,
                                   label: 'SIGN UP',
                                   icon: const Icon(Icons.join_full),
-                                  function: () {},
+                                  function: () {
+                                    if (dropdownValue.isNotEmpty || dropdownValue != ' ') {
+                                      submitData();
+                                    } else {
+                                      toast(context: context, msg: 'Please Select Your School');
+                                    }
+                                  },
                                 ),
                               ),
                             ],
-                          )),
-      ),
+                          ),
+                        )
+                      // Admin*****************************
+                      : widget.roll == 'admin'
+                          ? Form(
+                              key: formKey,
+                              child: Column(
+                                children: [
+                                  const Gap(20),
+                                  myTextField(
+                                    context: context,
+                                    enabled: true,
+                                    errorKey: 'staffid',
+                                    hintText: 'Staff ID',
+                                    keyboardType: TextInputType.number,
+                                    obscure: false,
+                                    preFixIcon: const Icon(Icons.code),
+
+                                    // textController: emailController,
+                                  ),
+                                  const Gap(2),
+                                  myTextField(
+                                    context: context,
+                                    enabled: true,
+                                    errorKey: 'name',
+                                    hintText: 'Name',
+                                    keyboardType: TextInputType.emailAddress,
+                                    obscure: false,
+                                    preFixIcon: const Icon(Icons.person),
+                                    textController: nameController,
+                                  ),
+                                  const Gap(2),
+                                  myTextField(
+                                    context: context,
+                                    enabled: true,
+                                    errorKey: 'email',
+                                    hintText: 'Email',
+                                    keyboardType: TextInputType.emailAddress,
+                                    obscure: false,
+                                    preFixIcon: const Icon(Icons.email),
+                                    textController: emailController,
+                                  ),
+                                  const Gap(2),
+                                  myTextField(
+                                    context: context,
+                                    enabled: true,
+                                    errorKey: 'Password',
+                                    hintText: 'Password',
+                                    keyboardType: TextInputType.text,
+                                    obscure: true,
+                                    preFixIcon: const Icon(Icons.lock),
+                                    textController: passwordController,
+                                  ),
+                                  const Gap(2),
+                                  myTextField(
+                                    context: context,
+                                    enabled: true,
+                                    errorKey: 'Password',
+                                    hintText: 'Confirm Password',
+                                    keyboardType: TextInputType.text,
+                                    obscure: true,
+                                    preFixIcon: const Icon(Icons.lock),
+                                    textController: confirmPasswordController,
+                                  ),
+                                  const Gap(15),
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: myButton(
+                                      formKey: formKey,
+                                      label: 'SIGN UP',
+                                      icon: const Icon(Icons.join_full),
+                                      function: () {
+                                        if (dropdownValue.isNotEmpty || dropdownValue != ' ') {
+                                          submitData();
+                                        } else {
+                                          toast(context: context, msg: 'Please Select Your School');
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+
+                          // Pupils*****************************************
+                          : Form(
+                              key: formKey,
+                              child: Column(
+                                children: [
+                                  const Gap(30),
+                                  DropdownMenu(
+                                    menuStyle: MenuStyle(
+                                      elevation: MaterialStateProperty.all(10),
+                                    ),
+                                    width: 250,
+                                    trailingIcon: const Icon(
+                                      Icons.arrow_drop_down,
+                                      color: Colors.black,
+                                    ),
+                                    initialSelection: schools.first,
+                                    label: const Text(
+                                      'Select Your School',
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    enableSearch: true,
+                                    enableFilter: true,
+                                    menuHeight: 250,
+                                    onSelected: (String? value) {
+                                      // This is called when the user selects an item.
+                                      setState(() {
+                                        dropdownValue = value!;
+                                        if (value.isNotEmpty) {
+                                          enabled = true;
+                                        } else {
+                                          enabled = false;
+                                        }
+                                        passwordController.text = '';
+                                        emailController.text = '';
+                                        nameController.text = '';
+                                        confirmPasswordController.text = '';
+                                        staffIDController.text = '';
+                                        emisCodeController.text = '';
+                                        admissionNumberController.text = '';
+                                      });
+                                    },
+                                    dropdownMenuEntries: schools.map<DropdownMenuEntry<String>>((String value) {
+                                      return DropdownMenuEntry<String>(value: value, label: value);
+                                    }).toList(),
+                                  ),
+                                  const Gap(20),
+                                  myTextField(
+                                    context: context,
+                                    enabled: enabled,
+                                    errorKey: 'admissionNumber',
+                                    hintText: 'Admission Number',
+                                    keyboardType: TextInputType.number,
+                                    obscure: false,
+                                    preFixIcon: const Icon(Icons.code),
+                                    textController: admissionNumberController,
+                                  ),
+                                  const Gap(2),
+                                  myTextField(
+                                    context: context,
+                                    enabled: enabled,
+                                    errorKey: 'name',
+                                    hintText: 'Name',
+                                    keyboardType: TextInputType.emailAddress,
+                                    obscure: false,
+                                    preFixIcon: const Icon(Icons.person),
+                                    textController: nameController,
+                                  ),
+                                  const Gap(2),
+                                  myTextField(
+                                    context: context,
+                                    enabled: enabled,
+                                    errorKey: 'email',
+                                    hintText: 'Email',
+                                    keyboardType: TextInputType.emailAddress,
+                                    obscure: false,
+                                    preFixIcon: const Icon(Icons.email),
+                                    textController: emailController,
+                                  ),
+                                  const Gap(2),
+                                  myTextField(
+                                    context: context,
+                                    enabled: enabled,
+                                    errorKey: 'Password',
+                                    hintText: 'Password',
+                                    keyboardType: TextInputType.text,
+                                    obscure: true,
+                                    preFixIcon: const Icon(Icons.lock),
+                                    textController: passwordController,
+                                  ),
+                                  const Gap(2),
+                                  myTextField(
+                                    context: context,
+                                    enabled: enabled,
+                                    errorKey: 'Password',
+                                    hintText: 'Confirm Password',
+                                    keyboardType: TextInputType.text,
+                                    obscure: true,
+                                    preFixIcon: const Icon(Icons.lock),
+                                    textController: confirmPasswordController,
+                                  ),
+                                  const Gap(15),
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: myButton(
+                                      formKey: formKey,
+                                      label: 'SIGN UP',
+                                      icon: const Icon(Icons.join_full),
+                                      function: () {
+                                        if (dropdownValue.isNotEmpty || dropdownValue != ' ') {
+                                          submitData();
+                                        } else {
+                                          toast(context: context, msg: 'Please Select Your School');
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+            )
+          : loadingScreen(),
     );
   }
 }

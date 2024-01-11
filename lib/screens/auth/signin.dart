@@ -4,7 +4,9 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:school_management/constants/field.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'checklogin.dart';
 import 'signup.dart';
 
 class SignIn extends StatefulWidget {
@@ -17,11 +19,13 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
   static const List<String> userRolls = <String>['', 'Pupil', 'Teacher', 'Headteacher', 'Admin'];
   String dropdownValue = userRolls.first;
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
   bool enabled = false;
+  final client = Supabase.instance.client;
+  bool loading = false;
 
   showAlertDialog() {
     // set up the buttons
@@ -30,7 +34,7 @@ class _SignInState extends State<SignIn> {
       onPressed: () {
         // Navigator.of(context).pop();
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => const SignUp(roll: 'Pupil'),
+          builder: (context) => const SignUp(roll: 'pupil'),
         ));
       },
     );
@@ -39,7 +43,7 @@ class _SignInState extends State<SignIn> {
       onPressed: () {
         // Navigator.of(context).pop();
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => const SignUp(roll: 'Teacher'),
+          builder: (context) => const SignUp(roll: 'teacher'),
         ));
       },
     );
@@ -49,7 +53,7 @@ class _SignInState extends State<SignIn> {
       onPressed: () {
         // Navigator.of(context).pop();
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => const SignUp(roll: 'Headteacher'),
+          builder: (context) => const SignUp(roll: 'headteacher'),
         ));
       },
     );
@@ -59,7 +63,7 @@ class _SignInState extends State<SignIn> {
       onPressed: () {
         // Navigator.of(context).pop();
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => const SignUp(roll: 'Admin'),
+          builder: (context) => const SignUp(roll: 'admin'),
         ));
       },
     );
@@ -88,159 +92,186 @@ class _SignInState extends State<SignIn> {
       child: Scaffold(
         backgroundColor: Colors.teal[100],
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: MediaQuery.of(context).size.height / 6,
-                width: MediaQuery.of(context).size.width / 3,
-                decoration: const BoxDecoration(
-                  image: DecorationImage(image: AssetImage('assets/imgs/logo.png'), fit: BoxFit.contain),
-                ),
-              ),
-              const Gap(10),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'Welcome To Tema Metro Schools Management System',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.aBeeZee(
-                    textStyle: Theme.of(context).textTheme.headlineSmall,
-                    decorationThickness: 20,
-                    // fontSize: 20,
-                  ),
-                ),
-              ),
-              const Gap(10),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Sign In',
-                        style: GoogleFonts.lato(
-                            textStyle: Theme.of(context).textTheme.headlineLarge, decorationThickness: 20, fontSize: 20, color: Colors.black),
+          child: !loading
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: MediaQuery.of(context).size.height / 6,
+                      width: MediaQuery.of(context).size.width / 3,
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(image: AssetImage('assets/imgs/logo.png'), fit: BoxFit.contain),
                       ),
-                      const Gap(10),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.height / 3.5,
-                        child: DropdownMenu(
-                          menuStyle: MenuStyle(
-                            elevation: MaterialStateProperty.all(10),
-                          ),
-                          trailingIcon: const Icon(
-                            Icons.arrow_drop_down,
-                            color: Colors.black,
-                          ),
-                          initialSelection: userRolls.first,
-                          label: const Text(
-                            'Select Roll',
-                            style: TextStyle(color: Colors.black),
-                          ),
-                          textStyle: const TextStyle(color: Colors.black),
-                          // inputDecorationTheme: const InputDecorationTheme(fillColor: Colors.white),
-                          enableSearch: true,
-                          enableFilter: false,
-
-                          onSelected: (String? value) {
-                            // This is called when the user selects an item.
-                            setState(() {
-                              dropdownValue = value!;
-                              if (value != '') {
-                                enabled = true;
-                              } else {
-                                enabled = false;
-                              }
-                              passwordController.text = '';
-                              emailController.text = '';
-                            });
-                          },
-                          dropdownMenuEntries: userRolls.map<DropdownMenuEntry<String>>((String value) {
-                            return DropdownMenuEntry<String>(value: value, label: value);
-                          }).toList(),
+                    ),
+                    const Gap(10),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'Welcome To Tema Metro Schools Management System',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.aBeeZee(
+                          textStyle: Theme.of(context).textTheme.headlineSmall,
+                          decorationThickness: 20,
+                          // fontSize: 20,
                         ),
                       ),
-                      const Gap(10),
-                      myTextField(
-                        hintText: 'Email',
-                        context: context,
-                        keyboardType: TextInputType.emailAddress,
-                        preFixIcon: const Icon(
-                          Icons.email,
-                          color: Colors.black,
-                        ),
-                        textController: emailController,
-                        enabled: enabled,
-                        errorKey: 'email',
-                        obscure: false,
-                      ),
-                      const Gap(10),
-                      myTextField(
-                        hintText: 'Password',
-                        context: context,
-                        keyboardType: TextInputType.emailAddress,
-                        preFixIcon: const Icon(
-                          Icons.lock,
-                          color: Colors.black,
-                        ),
-                        textController: passwordController,
-                        enabled: enabled,
-                        errorKey: 'password',
-                        obscure: true,
-                      ),
-                      const Gap(10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          const Gap(40),
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: myButton(
-                              formKey: formKey,
-                              label: 'SIGN IN',
-                              icon: const Icon(Icons.login),
-                              function: () {},
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    ),
+                    const Gap(10),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Expanded(
-                              child: TextButton(
-                                onPressed: () {},
-                                child: const Text(
-                                  'Forgot Password?',
-                                  style: TextStyle(color: Colors.black, fontSize: 20),
+                            Text(
+                              'Sign In',
+                              style: GoogleFonts.lato(
+                                  textStyle: Theme.of(context).textTheme.headlineLarge, decorationThickness: 20, fontSize: 20, color: Colors.black),
+                            ),
+                            const Gap(10),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.height / 3.5,
+                              child: DropdownMenu(
+                                menuStyle: MenuStyle(
+                                  elevation: MaterialStateProperty.all(10),
                                 ),
+                                trailingIcon: const Icon(
+                                  Icons.arrow_drop_down,
+                                  color: Colors.black,
+                                ),
+                                initialSelection: userRolls.first,
+                                label: const Text(
+                                  'Select Roll',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                textStyle: const TextStyle(color: Colors.black),
+                                // inputDecorationTheme: const InputDecorationTheme(fillColor: Colors.white),
+                                enableSearch: true,
+                                enableFilter: false,
+
+                                onSelected: (String? value) {
+                                  // This is called when the user selects an item.
+                                  setState(() {
+                                    dropdownValue = value!;
+                                    if (value != '') {
+                                      enabled = true;
+                                    } else {
+                                      enabled = false;
+                                    }
+                                    passwordController.text = '';
+                                    emailController.text = '';
+                                  });
+                                },
+                                dropdownMenuEntries: userRolls.map<DropdownMenuEntry<String>>((String value) {
+                                  return DropdownMenuEntry<String>(value: value, label: value);
+                                }).toList(),
                               ),
                             ),
-                            Expanded(
-                              child: TextButton(
-                                  onPressed: () {
-                                    showAlertDialog();
-                                  },
-                                  child: const Text(
-                                    'SignUp',
-                                    style: TextStyle(color: Colors.black, fontSize: 20),
-                                  )),
+                            const Gap(10),
+                            myTextField(
+                              hintText: 'Email',
+                              context: context,
+                              keyboardType: TextInputType.emailAddress,
+                              preFixIcon: const Icon(
+                                Icons.email,
+                                color: Colors.black,
+                              ),
+                              textController: emailController,
+                              enabled: enabled,
+                              errorKey: 'email',
+                              obscure: false,
+                            ),
+                            const Gap(10),
+                            myTextField(
+                              hintText: 'Password',
+                              context: context,
+                              keyboardType: TextInputType.emailAddress,
+                              preFixIcon: const Icon(
+                                Icons.lock,
+                                color: Colors.black,
+                              ),
+                              textController: passwordController,
+                              enabled: enabled,
+                              errorKey: 'password',
+                              obscure: true,
+                            ),
+                            const Gap(10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                const Gap(40),
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: myButton(
+                                    formKey: _formKey,
+                                    label: 'SIGN IN',
+                                    icon: const Icon(Icons.login),
+                                    function: () async {
+                                      setState(() {
+                                        loading = true;
+                                      });
+                                      try {
+                                        var results = await client.auth.signInWithPassword(
+                                          password: passwordController.text,
+                                          email: emailController.text,
+                                        );
+
+                                        if (results.user!.id.isNotEmpty) {
+                                          Navigator.of(context).pushReplacement(
+                                            MaterialPageRoute(builder: (context) => const CheckLogin()),
+                                          );
+                                        }
+
+                                        setState(() {
+                                          loading = false;
+                                        });
+                                      } catch (e) {
+                                        setState(() {
+                                          loading = false;
+                                        });
+                                        toast(context: context, msg: e.toString());
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Expanded(
+                                    child: TextButton(
+                                      onPressed: () {},
+                                      child: const Text(
+                                        'Forgot Password?',
+                                        style: TextStyle(color: Colors.black, fontSize: 20),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: TextButton(
+                                        onPressed: () {
+                                          showAlertDialog();
+                                        },
+                                        child: const Text(
+                                          'SignUp',
+                                          style: TextStyle(color: Colors.black, fontSize: 20),
+                                        )),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+                    ),
+                  ],
+                )
+              : loadingScreen(),
         ),
       ),
     );
