@@ -21,7 +21,7 @@ Widget loadingScreen() {
   return Center(
     child: LoadingAnimationWidget.inkDrop(
       color: Colors.white,
-      size: 200,
+      size: 50,
     ),
   );
 }

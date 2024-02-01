@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:school_management/constants/field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../constants/colors.dart';
 import 'checklogin.dart';
 import 'signup.dart';
 
@@ -23,7 +24,7 @@ class _SignInState extends State<SignIn> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
-  bool enabled = false;
+  // bool enabled = false;
   final client = Supabase.instance.client;
   bool loading = false;
 
@@ -33,9 +34,11 @@ class _SignInState extends State<SignIn> {
       child: const Text("Pupil"),
       onPressed: () {
         // Navigator.of(context).pop();
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => const SignUp(roll: 'pupil'),
-        ));
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const SignUp(roll: 'pupil'),
+          ),
+        );
       },
     );
     Widget teacherButton = TextButton(
@@ -90,7 +93,7 @@ class _SignInState extends State<SignIn> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.teal[100],
+        backgroundColor: generalColor,
         body: Center(
           child: !loading
               ? Column(
@@ -131,45 +134,45 @@ class _SignInState extends State<SignIn> {
                                   textStyle: Theme.of(context).textTheme.headlineLarge, decorationThickness: 20, fontSize: 20, color: Colors.black),
                             ),
                             const Gap(10),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.height / 3.5,
-                              child: DropdownMenu(
-                                menuStyle: MenuStyle(
-                                  elevation: MaterialStateProperty.all(10),
-                                ),
-                                trailingIcon: const Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.black,
-                                ),
-                                initialSelection: userRolls.first,
-                                label: const Text(
-                                  'Select Roll',
-                                  style: TextStyle(color: Colors.black),
-                                ),
-                                textStyle: const TextStyle(color: Colors.black),
-                                // inputDecorationTheme: const InputDecorationTheme(fillColor: Colors.white),
-                                enableSearch: true,
-                                enableFilter: false,
+                            // SizedBox(
+                            //   width: MediaQuery.of(context).size.height / 3.5,
+                            //   child: DropdownMenu(
+                            //     menuStyle: MenuStyle(
+                            //       elevation: MaterialStateProperty.all(10),
+                            //     ),
+                            //     trailingIcon: const Icon(
+                            //       Icons.arrow_drop_down,
+                            //       color: Colors.black,
+                            //     ),
+                            //     initialSelection: userRolls.first,
+                            //     label: const Text(
+                            //       'Select Roll',
+                            //       style: TextStyle(color: Colors.black),
+                            //     ),
+                            //     textStyle: const TextStyle(color: Colors.black),
+                            //     // inputDecorationTheme: const InputDecorationTheme(fillColor: Colors.white),
+                            //     enableSearch: true,
+                            //     enableFilter: false,
 
-                                onSelected: (String? value) {
-                                  // This is called when the user selects an item.
-                                  setState(() {
-                                    dropdownValue = value!;
-                                    if (value != '') {
-                                      enabled = true;
-                                    } else {
-                                      enabled = false;
-                                    }
-                                    passwordController.text = '';
-                                    emailController.text = '';
-                                  });
-                                },
-                                dropdownMenuEntries: userRolls.map<DropdownMenuEntry<String>>((String value) {
-                                  return DropdownMenuEntry<String>(value: value, label: value);
-                                }).toList(),
-                              ),
-                            ),
-                            const Gap(10),
+                            //     onSelected: (String? value) {
+                            //       // This is called when the user selects an item.
+                            //       setState(() {
+                            //         dropdownValue = value!;
+                            //         if (value != '') {
+                            //           enabled = true;
+                            //         } else {
+                            //           enabled = false;
+                            //         }
+                            //         passwordController.text = '';
+                            //         emailController.text = '';
+                            //       });
+                            //     },
+                            //     dropdownMenuEntries: userRolls.map<DropdownMenuEntry<String>>((String value) {
+                            //       return DropdownMenuEntry<String>(value: value, label: value);
+                            //     }).toList(),
+                            //   ),
+                            // ),
+                            // const Gap(10),
                             myTextField(
                               hintText: 'Email',
                               context: context,
@@ -179,7 +182,7 @@ class _SignInState extends State<SignIn> {
                                 color: Colors.black,
                               ),
                               textController: emailController,
-                              enabled: enabled,
+                              enabled: true,
                               errorKey: 'email',
                               obscure: false,
                             ),
@@ -193,7 +196,7 @@ class _SignInState extends State<SignIn> {
                                 color: Colors.black,
                               ),
                               textController: passwordController,
-                              enabled: enabled,
+                              enabled: true,
                               errorKey: 'password',
                               obscure: true,
                             ),

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter_styled_toast/flutter_styled_toast.dart';
+// import 'package:flutter/src/widgets/framework.dart';
+// import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:gap/gap.dart';
 import 'package:school_management/screens/auth/authService.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../constants/colors.dart';
 import '../../constants/field.dart';
 import '../../models/adduserModel.dart';
 import 'checklogin.dart';
@@ -85,7 +86,7 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.teal[100],
+      backgroundColor:generalColor,
       appBar: AppBar(
         title: Text('${widget.roll} Sign Up'),
         centerTitle: true,

@@ -1,8 +1,8 @@
-import 'dart:math';
+// import 'dart:math';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../models/schoolsModel.dart';
+// import '../../models/schoolsModel.dart';
 
 class AuthService {
   final client = Supabase.instance.client;
