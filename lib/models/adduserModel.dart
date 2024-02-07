@@ -6,6 +6,7 @@ class AddUserData {
   String? staffID;
   String? name;
   String? admissionNumber;
+  String? gaurdianPhone;
   AddUserData.fromMap(
     Map<String, dynamic> data,
   ) {
@@ -16,6 +17,7 @@ class AddUserData {
     staffID = data['staffID'];
     name = data['name'];
     admissionNumber = data['admissionNumber'];
+    gaurdianPhone = data['gaurdianPhone'];
   }
 
   Map<String, dynamic> toMap() {
@@ -27,6 +29,7 @@ class AddUserData {
       'staffID': staffID,
       'name': name,
       'admissionNumber': admissionNumber,
+      'gaurdianPhone': gaurdianPhone,
     };
   }
 
@@ -38,5 +41,6 @@ class AddUserData {
     this.school,
     this.staffID,
     this.admissionNumber,
+    this.gaurdianPhone,
   });
 }

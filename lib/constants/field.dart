@@ -55,6 +55,7 @@ Widget myTextField({
   bool? enabled,
   required bool obscure,
   context,
+  initialValue,
 }) {
   return SizedBox(
     width: MediaQuery.of(context).size.height / 2,
@@ -66,6 +67,7 @@ Widget myTextField({
       enabled: enabled,
       // obscureText: ,
       obscureText: obscure,
+      initialValue: initialValue,
       decoration: CustomTextInputDecoration(
         fillColor: Colors.white,
         prefixIcon: preFixIcon,

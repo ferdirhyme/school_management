@@ -31,6 +31,7 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController staffIDController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController admissionNumberController = TextEditingController();
+  final TextEditingController gaurdianPhone = TextEditingController();
   AddUserData data = AddUserData();
   bool loading = false;
   supaDatabaseService databaseService = supaDatabaseService();
@@ -49,6 +50,9 @@ class _SignUpState extends State<SignUp> {
       data.school = dropdownValue;
       data.staffID = staffIDController.text;
       data.admissionNumber = admissionNumberController.text;
+      data.gaurdianPhone = gaurdianPhone.text;
+
+     
 
       var res = AuthService().signupUser(widget.roll, data);
       res.then((e) {
@@ -86,7 +90,7 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:generalColor,
+      backgroundColor: generalColor,
       appBar: AppBar(
         title: Text('${widget.roll} Sign Up'),
         centerTitle: true,
@@ -471,6 +475,16 @@ class _SignUpState extends State<SignUp> {
                                     obscure: false,
                                     preFixIcon: const Icon(Icons.code),
                                     textController: admissionNumberController,
+                                  ),
+                                  myTextField(
+                                    context: context,
+                                    enabled: enabled,
+                                    errorKey: 'GaurdianPhone',
+                                    hintText: 'Gaurdian Phone Number',
+                                    keyboardType: TextInputType.phone,
+                                    obscure: false,
+                                    preFixIcon: const Icon(Icons.phone),
+                                    textController: gaurdianPhone,
                                   ),
                                   const Gap(2),
                                   myTextField(

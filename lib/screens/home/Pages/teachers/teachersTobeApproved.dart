@@ -27,7 +27,6 @@ class _TeacherApprovalState extends State<TeacherApproval> {
     setState(() {
       widget.teachers.removeWhere((teacher) => teacher['staffid'] == staffid);
       // appr = widget.teachers.length;
-      widget.refresh();
     });
   }
 
@@ -65,6 +64,13 @@ class _TeacherApprovalState extends State<TeacherApproval> {
         return alert;
       },
     );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    widget.refresh();
+    super.initState();
   }
 
   @override

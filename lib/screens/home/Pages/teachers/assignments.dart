@@ -13,6 +13,17 @@ const classess = <ValueItem>[
   ValueItem(value: 'BASIC 8', label: 'BASIC 8'),
   ValueItem(value: 'BASIC 9', label: 'BASIC 9'),
 ];
+const List<String> classess1 = <String>[
+  'BASIC 1',
+  'BASIC 2',
+  'BASIC 3',
+  'BASIC 4',
+  'BASIC 5',
+  'BASIC 6',
+  'BASIC 7',
+  'BASIC 8',
+  'BASIC 9',
+];
 
 const subjects = <ValueItem>[
   ValueItem(value: 'OWOP', label: 'OWOP'),

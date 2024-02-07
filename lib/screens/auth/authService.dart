@@ -9,6 +9,7 @@ class AuthService {
 
   late List check;
   late List admissionExist;
+  late List gaurdianPhoneExist;
 
   Future<List> fetchEmisCode(password, emisCode) async {
     final emisData = await client.from('schools').select('school_code, password').match({'school_code': emisCode, 'password': password});
@@ -21,8 +22,14 @@ class AuthService {
   }
 
   Future<List> fetchAdmissionNumber(admissionNumber) async {
-    final emisData = await client.from('pupils_approval').select('admission_number').eq('admission_number', admissionNumber);
+    final emisData = await client.from('pupils').select('admission_number').eq('admission_number', admissionNumber);
+
     return emisData;
+  }
+
+  Future<List> fetchGaudianPhoneNumber(admissionNumber) async {
+    final gaurdianPhone = await client.from('pupils').select('phoneNumberOfGuardian').eq('admission_number', admissionNumber);
+    return gaurdianPhone;
   }
 
   insertProfileData({data, usertype}) async {
@@ -56,14 +63,18 @@ class AuthService {
         });
       }
     } else if (usertype == 'pupil') {
-      await client.from(usertype).insert({
-        'admissionNumber': data.admissionNumber,
-        'id': user,
-        'email': data.email,
-        'name': data.name,
-        'profilePicUrl': 'pic',
-        'school': data.school,
-      });
+      await client
+          .from(usertype)
+          .update({
+            // 'admissionNumber': data.admissionNumber,
+            'id': user,
+            'email': data.email,
+            // 'name': data.name,
+            // 'profilePicUrl': 'pic',
+            // 'school': data.school,
+          })
+          .eq('admissionNumber', data.admissionNumber)
+          .eq('phoneNumberOfGuardian', data.guardianPhone);
     } else if (usertype == 'admin') {
       await client.from(usertype).insert({
         'staffid': data.staffID,
@@ -121,11 +132,15 @@ class AuthService {
       }
     } else if (usertype == 'pupil') {
       final admissionUmberExist = fetchAdmissionNumber(data.admissionNumber);
+      final gaurdianphone = fetchGaudianPhoneNumber(data.admissionNumber);
 
       await admissionUmberExist.then((value) {
         admissionExist = value;
       });
-      if (admissionExist.isNotEmpty) {
+      await gaurdianphone.then((value) {
+        gaurdianPhoneExist = value;
+      });
+      if (admissionExist.isNotEmpty && gaurdianPhoneExist[0] == data.gaurdianPhone) {
         try {
           await client.auth.signUp(password: data.password, email: data.email).then(
             (value) {
@@ -140,7 +155,7 @@ class AuthService {
           myreturn = e.toString();
         }
       } else {
-        myreturn = 'Admission Number Does Not Exist';
+        myreturn = 'Admission Number Does Not Exist Or Incorrect Gaurdian Phone Number';
       }
     } else if (usertype == 'admin') {
       try {
