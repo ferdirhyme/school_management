@@ -179,7 +179,8 @@ class _TeacherManagementState extends State<TeacherManagement> {
     final teacherassignment =
         await client.from('teacher').select('staffid,name,subjects,assignedClass').eq('school', headschool[0]['school']).eq('confirmed', 'TRUE');
     final teacherlist = await client.from('teacher').select('staffid,name').eq('school', headschool[0]['school']).eq('confirmed', 'TRUE');
-    return [teacherlist, teacherassignment];
+    print(teacherlist);
+    return [teacherlist ?? [], teacherassignment ?? []];
   }
 
   @override
@@ -194,21 +195,19 @@ class _TeacherManagementState extends State<TeacherManagement> {
               unselectedBackgroundColor: Colors.grey[300],
               unselectedLabelStyle: const TextStyle(color: Colors.black),
               labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              tabs:const [
-                 Tab(
+              tabs: const [
+                Tab(
                   icon: Icon(Icons.assignment_add),
                   text: "Class Assignment",
                 ),
                 Tab(
-                  icon:   Icon(
-                      IconData(0xe78d, fontFamily: 'MaterialIcons'),
-                      color: Colors.red,
-                    ),
-                    text: "Teacher Approval",
+                  icon: Icon(
+                    IconData(0xe78d, fontFamily: 'MaterialIcons'),
+                    color: Colors.red,
                   ),
-                  
-             
-                 Tab(
+                  text: "Teacher Approval",
+                ),
+                Tab(
                   icon: Icon(Icons.person),
                   text: "Teacher Profile",
                 ),
@@ -223,6 +222,10 @@ class _TeacherManagementState extends State<TeacherManagement> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return const CircularProgressIndicator();
+                        } else if (snapshot.connectionState == ConnectionState.none) {
+                          return const Center(
+                            child: Text('No Internet Connection'),
+                          );
                         } else {
                           return Assign(teachers: snapshot.data![1]);
                         }
@@ -235,6 +238,10 @@ class _TeacherManagementState extends State<TeacherManagement> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return const CircularProgressIndicator();
+                        } else if (snapshot.connectionState == ConnectionState.none) {
+                          return const Center(
+                            child: Text('No Internet Connection'),
+                          );
                         } else {
                           return TeacherApproval(teachers: snapshot.data as List, refresh: () {});
                         }
@@ -247,6 +254,10 @@ class _TeacherManagementState extends State<TeacherManagement> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return const CircularProgressIndicator();
+                        } else if (snapshot.connectionState == ConnectionState.none) {
+                          return const Center(
+                            child: Text('No Internet Connection'),
+                          );
                         } else {
                           return TeacherList(teachers: snapshot.data![0]);
                         }

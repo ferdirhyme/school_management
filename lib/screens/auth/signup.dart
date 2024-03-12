@@ -52,8 +52,6 @@ class _SignUpState extends State<SignUp> {
       data.admissionNumber = admissionNumberController.text;
       data.gaurdianPhone = gaurdianPhone.text;
 
-     
-
       var res = AuthService().signupUser(widget.roll, data);
       res.then((e) {
         setState(() {
@@ -155,6 +153,7 @@ class _SignUpState extends State<SignUp> {
                             ),
                             const Gap(20),
                             myTextField(
+                              ontap: () {},
                               context: context,
                               enabled: enabled,
                               errorKey: 'emis_code',
@@ -166,6 +165,7 @@ class _SignUpState extends State<SignUp> {
                             ),
                             const Gap(2),
                             myTextField(
+                              ontap: () {},
                               context: context,
                               enabled: enabled,
                               errorKey: 'email',
@@ -177,6 +177,7 @@ class _SignUpState extends State<SignUp> {
                             ),
                             const Gap(2),
                             myTextField(
+                              ontap: () {},
                               context: context,
                               enabled: enabled,
                               errorKey: 'Password',
@@ -188,6 +189,7 @@ class _SignUpState extends State<SignUp> {
                             ),
                             const Gap(2),
                             myTextField(
+                              ontap: () {},
                               context: context,
                               enabled: enabled,
                               errorKey: 'Passworda',
@@ -266,6 +268,7 @@ class _SignUpState extends State<SignUp> {
                               ),
                               const Gap(20),
                               myTextField(
+                                ontap: () {},
                                 context: context,
                                 enabled: enabled,
                                 errorKey: 'staffid',
@@ -277,6 +280,7 @@ class _SignUpState extends State<SignUp> {
                               ),
                               const Gap(2),
                               myTextField(
+                                ontap: () {},
                                 context: context,
                                 enabled: enabled,
                                 errorKey: 'name',
@@ -288,6 +292,7 @@ class _SignUpState extends State<SignUp> {
                               ),
                               const Gap(2),
                               myTextField(
+                                ontap: () {},
                                 context: context,
                                 enabled: enabled,
                                 errorKey: 'email',
@@ -299,6 +304,7 @@ class _SignUpState extends State<SignUp> {
                               ),
                               const Gap(2),
                               myTextField(
+                                ontap: () {},
                                 context: context,
                                 enabled: enabled,
                                 errorKey: 'Password',
@@ -310,6 +316,7 @@ class _SignUpState extends State<SignUp> {
                               ),
                               const Gap(2),
                               myTextField(
+                                ontap: () {},
                                 context: context,
                                 enabled: enabled,
                                 errorKey: 'Password',
@@ -346,6 +353,7 @@ class _SignUpState extends State<SignUp> {
                                 children: [
                                   const Gap(20),
                                   myTextField(
+                                    ontap: () {},
                                     context: context,
                                     enabled: true,
                                     errorKey: 'staffid',
@@ -358,6 +366,7 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                   const Gap(2),
                                   myTextField(
+                                    ontap: () {},
                                     context: context,
                                     enabled: true,
                                     errorKey: 'name',
@@ -369,6 +378,7 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                   const Gap(2),
                                   myTextField(
+                                    ontap: () {},
                                     context: context,
                                     enabled: true,
                                     errorKey: 'email',
@@ -380,6 +390,7 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                   const Gap(2),
                                   myTextField(
+                                    ontap: () {},
                                     context: context,
                                     enabled: true,
                                     errorKey: 'Password',
@@ -391,6 +402,7 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                   const Gap(2),
                                   myTextField(
+                                    ontap: () {},
                                     context: context,
                                     enabled: true,
                                     errorKey: 'Password',
@@ -467,6 +479,7 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                   const Gap(20),
                                   myTextField(
+                                    ontap: () {},
                                     context: context,
                                     enabled: enabled,
                                     errorKey: 'admissionNumber',
@@ -477,6 +490,7 @@ class _SignUpState extends State<SignUp> {
                                     textController: admissionNumberController,
                                   ),
                                   myTextField(
+                                    ontap: () {},
                                     context: context,
                                     enabled: enabled,
                                     errorKey: 'GaurdianPhone',
@@ -488,6 +502,7 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                   const Gap(2),
                                   myTextField(
+                                    ontap: () {},
                                     context: context,
                                     enabled: enabled,
                                     errorKey: 'name',
@@ -499,6 +514,7 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                   const Gap(2),
                                   myTextField(
+                                    ontap: () {},
                                     context: context,
                                     enabled: enabled,
                                     errorKey: 'email',
@@ -510,6 +526,7 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                   const Gap(2),
                                   myTextField(
+                                    ontap: () {},
                                     context: context,
                                     enabled: enabled,
                                     errorKey: 'Password',
@@ -521,6 +538,7 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                   const Gap(2),
                                   myTextField(
+                                    ontap: () {},
                                     context: context,
                                     enabled: enabled,
                                     errorKey: 'Password',

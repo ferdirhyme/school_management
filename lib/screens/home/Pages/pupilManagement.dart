@@ -2,6 +2,7 @@ import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../constants/colors.dart';
 import 'pupils/newadmissions.dart';
@@ -14,6 +15,32 @@ class PupilManagement extends StatefulWidget {
 }
 
 class _PupilManagementState extends State<PupilManagement> {
+  late final client;
+  String school = '';
+  String emisCode = '';
+
+  @override
+  void initState() {
+    super.initState();
+    client = Supabase.instance.client;
+    fetchSchoolEmisCode();
+  }
+
+  Future<List> fetchSchoolEmisCode() async {
+    var userId = client.auth.currentUser;
+    var user = userId?.id;
+
+    final headschool = await client.from('headteacher').select('school,emisCode').eq('id', user);
+
+    setState(() {
+      school = headschool[0]['school'].toString();
+      emisCode = headschool[0]['emisCode'].toString();
+      print(school + '+' + emisCode);
+    });
+
+    return headschool;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,17 +85,17 @@ class _PupilManagementState extends State<PupilManagement> {
                 // const Tab(icon: Icon(Icons.directions_bike)),
               ],
             ),
-            const Expanded(
+            Expanded(
               child: TabBarView(
                 children: <Widget>[
-                  Center(
+                  const Center(
                     child: Icon(Icons.directions_car),
                   ),
-                  Center(
+                  const Center(
                     child: Icon(Icons.directions_transit),
                   ),
                   Center(
-                    child: NewAdmission(),
+                    child: NewAdmission(school: school, emisCode: emisCode),
                   ),
                 ],
               ),

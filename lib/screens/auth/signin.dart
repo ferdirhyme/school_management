@@ -174,6 +174,7 @@ class _SignInState extends State<SignIn> {
                             // ),
                             // const Gap(10),
                             myTextField(
+                              ontap: () {},
                               hintText: 'Email',
                               context: context,
                               keyboardType: TextInputType.emailAddress,
@@ -188,6 +189,7 @@ class _SignInState extends State<SignIn> {
                             ),
                             const Gap(10),
                             myTextField(
+                              ontap: () {},
                               hintText: 'Password',
                               context: context,
                               keyboardType: TextInputType.emailAddress,
